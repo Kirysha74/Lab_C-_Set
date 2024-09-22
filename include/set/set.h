@@ -39,7 +39,9 @@ namespace set {
 		int set_size() {
 			return size(_head);
 		}
+
 		Node* copy_set(Node* root) {
+
 			if (!root) {
 				return nullptr;
 			}
@@ -51,21 +53,22 @@ namespace set {
 			return new_node;
 		}
 
-		void delete_nodes(Node*& root) {
+		void delete_tree(Node*& root) {
 			if (root == nullptr) {
 				return;
 			}
-			delete_nodes(root->_left);
-			delete_nodes(root->_right);
+			delete_tree(root->_left);
+			delete_tree(root->_right);
 			delete root;
 			root = nullptr;
 		}
 
 		~Set() {
-			delete_nodes(_head);
+			delete_tree(_head);
 		}
 
 		Set() : _head(nullptr) {};
+
 		Set(const Set& other) {
 			_head = copy_set(other._head);
 		}
@@ -73,13 +76,14 @@ namespace set {
 		void print_set() const {
 			print(_head);
 		}
+
 		bool insert(int key) {
 			if (!_head) {
 				_head = new Node(key);
 				return true;
 			}
 			if (this->contains(key)) {
-				return true;
+				return false;
 			}
 			Node* ptr = _head;
 			while (ptr) {
@@ -178,10 +182,18 @@ namespace set {
 			}
 
 			Node* ptr1 = ptr->_right;
+			pre_ptr = ptr;
 			while (ptr1->_left) {
+				pre_ptr = ptr1;
 				ptr1 = ptr1->_left;
 			}
 			ptr->_key = ptr1->_key;
+			if (pre_ptr == ptr) {
+				ptr->_right = ptr1->_right;
+			}
+			else {
+				pre_ptr->_left = ptr1->_right;
+			}
 			delete ptr1;
 		}
 
@@ -196,6 +208,12 @@ namespace set {
 		sub_uni(ptr->_right, c);
 	};
 
+	Set uni(const Set& a, const Set& b) {
+		Set c(b);
+		sub_uni(a.get_head(), c);
+		return c;
+	}
+
 	void sub_simmetrical_difference(Node* ptr, const Set& b, Set& c) {
 		if (ptr == nullptr) {
 			return;
@@ -206,12 +224,6 @@ namespace set {
 		sub_simmetrical_difference(ptr->_left, b, c);
 		sub_simmetrical_difference(ptr->_right, b, c);
 	};
-
-	Set uni(const Set& a, const Set& b) {
-		Set c(b);
-		sub_uni(a.get_head(), c);
-		return c;
-	}
 
 	Set simmetrical_difference(const Set& a, const Set& b) {
 		Set c;
